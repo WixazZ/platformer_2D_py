@@ -4,7 +4,7 @@ B                                                         BBBBBBBBBBBBBBBBBBBBBB
 B                E         V                       V                                                            E              F    B    B
 B          BBBBBBBB                                      BBBBBBBBB                                      BB  BBBBBBB  BBBBBBBBBBBBBBBB    B
 B    B                 B                                           B                        BBBBBBBB                                B    B
-B   S                      B                                           E                                                            B    B
+B                          B                                           E                                                            B    B
 BBBB       V                                                          BBBBBBBBBBB                    BB   V                         B    B
 B                                                                                                                                   B    B
 B     BB                        BBBBB                    E                        BB BBBBB               B                          B    B
@@ -13,7 +13,7 @@ B      BBB                                                                      
 B   BB                                                                                       B                                      B    B
 B                                                             BB  B B B                                         BB                  B    B
 BBBB                                                                                           B                      BB            B    B
-B                                                                                   E            E                                  B    B
+B                  S                                                                E            E                                  B    B
 B                                                                         BBBBBBBBBBBBBBBBBBBBBBBBBBBB                BBB     E          B
 BBBBBBB                                                                                                                  BBBBBBBBBBBBBBBBB
 B               E                                                     B      B                                                           B

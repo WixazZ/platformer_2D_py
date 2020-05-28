@@ -134,11 +134,28 @@ while run:
     pygame.display.update()
 '''
 import pygame
-HORIZONTAL_PLAT = 1000
-VERTICAL_PLAT = 30*28
 import sys
-SCREEN_RECT = pygame.Rect((0, 0, 1000, 30*28))
+#Paramètres de la fenêtre
+nombre_sprite_cote = 28
+taille_sprite = 30
+cote_fenetre = nombre_sprite_cote * taille_sprite
 
+#Personnalisation de la fenêtre
+titre_fenetre = "Platformer 2D"
+image_icone = "images/dk_droite.png"
+
+#Listes des images du jeu
+image_accueil = "images/accueil.png"
+image_fond = "background.jpg"
+image_mur = "mur.png"
+image_depart = "depart.png"
+image_arrivee = "arrivee.png"
+map1 = "first_map.txt"
+perso_droite = "image\player_right.png"
+perso_gauche = "image\player_left.png"
+SCREEN_RECT = pygame.Rect((0, 0, cote_fenetre, cote_fenetre))
+speed = 8
+perso_taille = taille_sprite *2
 
 def exit():
     pygame.quit()
@@ -147,17 +164,17 @@ def exit():
 def main():
 
     pygame.init()
-    pygame.display.set_caption('Platformer 2D')
+    pygame.display.set_caption(titre_fenetre)
 
     screen = pygame.display.set_mode(SCREEN_RECT.size)
-    fond = pygame.image.load("background.jpg").convert()
+    fond = pygame.image.load(image_fond).convert()
 
 
-    carte = niveaux('first_map.txt')
+    carte = niveaux(map1)
     carte.lecture_map()
     carte.affichage(screen)
 
-    player = Player('image\player_right.png', 'image\player_left.png', carte)
+    player = Player(perso_droite, perso_gauche, carte)
 
     pygame.key.set_repeat(1, 20)
     fps = pygame.time.Clock()
@@ -172,9 +189,9 @@ def main():
                 exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
-                    player.move('right')
+                    player.move('right', carte)
                 elif event.key == pygame.K_LEFT:
-                    player.move('left')
+                    player.move('left',carte)
         pygame.display.update()
         pygame.display.flip()
         screen.blit(fond, (0, 0))
@@ -197,15 +214,15 @@ class niveaux:
 
 
     def affichage(self, screen):
-        block = pygame.image.load('mur.png').convert()
-        start = pygame.image.load('depart.png').convert()
-        finish = pygame.image.load('arrivee.png').convert_alpha()
+        block = pygame.image.load(image_mur).convert()
+        start = pygame.image.load(image_depart).convert()
+        finish = pygame.image.load(image_arrivee).convert_alpha()
         num_j = 0
         for i in self.structure:
             num_i = 0
             for sprite in i:
-                x = num_i * 30
-                y = num_j * 30
+                x = num_i * taille_sprite
+                y = num_j * taille_sprite
                 if sprite == 'B':
                     screen.blit(block, (x, y))
                 elif sprite == 'S':
@@ -217,44 +234,61 @@ class niveaux:
 
 
 class Player:
-    def __init__(self, right, left, map):
+    def __init__(self, right, left, carte):
         self.right_direction = pygame.image.load(right)
-        self.right_direction = pygame.transform.scale(self.right_direction, (30*2, 30*2))
+        self.right_direction = pygame.transform.scale(self.right_direction, (perso_taille, perso_taille))
         self.left_direction = pygame.image.load(left)
-        self.left_direction = pygame.transform.scale(self.left_direction, (30*2, 30*2))
+        self.left_direction = pygame.transform.scale(self.left_direction, (perso_taille, perso_taille))
 
         self.default_direction = self.right_direction
         self.health = 3
         num_j = 0
-        for i in map.structure:
+        for i in carte.structure:
             num_i = 0
             for sprite in i:
-                x = num_i * 30
-                y = num_j * 30
+                x = num_i * taille_sprite
+                y = num_j * taille_sprite
                 if sprite == 'S':
                     self.x = x
                     self.y = y
                 num_i += 1
             num_j += 1
 
-    def move(self, direction):
+    def move(self, direction, carte):
         if direction == 'right':
-            if self.x+8 < (1000-60):
-                self.x += 8
+            if self.x+speed < (cote_fenetre-perso_taille):
+                if self.collision(carte) == False:
+                    self.x += speed
             else:
-                self.x =1000-60
+                self.x = cote_fenetre - perso_taille
             self.default_direction = self.right_direction
 
         elif direction == 'left':
-            if self.x-8 > (30):
-                self.x -= 8
+            if self.x-speed > taille_sprite:
+                if self.collision(carte) == False:
+                    self.x -= speed
+                else:
+                    self.x += 1.5
             else:
-                self.x = 30
+                self.x = taille_sprite
             self.default_direction = self.left_direction
 
 
-    #def collision(self, direction):
-        #if(self.x + 30*2):
+    def collision(self, carte):
+        num_j = 0
+        for i in carte.structure:
+            num_i = 0
+            for sprite in i:
+                x = num_i * taille_sprite
+                y = num_j * taille_sprite
+                if sprite == 'B':
+                    self.block_x = x
+                    self.block_y = y
+                    if (self.x + perso_taille >= self.block_x) and (self.block_x + taille_sprite >= self.x) and (self.y+ perso_taille >= self.block_y)and (self.block_y+ taille_sprite >= self.y):
+                        return True
+                num_i += 1
+            num_j += 1
+        return False
 
 
 if __name__ == '__main__':
