@@ -135,16 +135,17 @@ while run:
 '''
 import pygame
 import sys
-#Paramètres de la fenêtre
+
+# Paramètres de la fenêtre
 nombre_sprite_cote = 28
 taille_sprite = 30
 cote_fenetre = nombre_sprite_cote * taille_sprite
 
-#Personnalisation de la fenêtre
+# Personnalisation de la fenêtre
 titre_fenetre = "Platformer 2D"
 image_icone = "images/dk_droite.png"
 
-#Listes des images du jeu
+# Listes des images du jeu
 image_accueil = "images/accueil.png"
 image_fond = "background.jpg"
 image_mur = "mur.png"
@@ -155,20 +156,22 @@ perso_droite = "image\player_right.png"
 perso_gauche = "image\player_left.png"
 SCREEN_RECT = pygame.Rect((0, 0, cote_fenetre, cote_fenetre))
 speed = 8
-perso_taille = taille_sprite *2
+jump_speed = 40
+perso_taille = taille_sprite * 2
+gravite = 10
+
 
 def exit():
     pygame.quit()
     sys.exit()
 
-def main():
 
+def main():
     pygame.init()
     pygame.display.set_caption(titre_fenetre)
 
     screen = pygame.display.set_mode(SCREEN_RECT.size)
     fond = pygame.image.load(image_fond).convert()
-
 
     carte = niveaux(map1)
     carte.lecture_map()
@@ -180,18 +183,28 @@ def main():
     fps = pygame.time.Clock()
     play = True
 
-    while(play):
-
+    while (play):
 
         fps.tick(30)
+        player.move('gravite', carte)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
                     player.move('right', carte)
+                    if event.key == pygame.K_SPACE:
+                        player.move('jump', carte)
+
                 elif event.key == pygame.K_LEFT:
-                    player.move('left',carte)
+                    player.move('left', carte)
+                    if event.key == pygame.K_SPACE:
+                        player.move('jump', carte)
+
+                elif event.key == pygame.K_SPACE:
+                    player.move('jump', carte)
+
+
         pygame.display.update()
         pygame.display.flip()
         screen.blit(fond, (0, 0))
@@ -211,7 +224,6 @@ class niveaux:
             for i in map:
                 struct_niveau.append(str(i) + "\n")
             self.structure = struct_niveau
-
 
     def affichage(self, screen):
         block = pygame.image.load(image_mur).convert()
@@ -239,9 +251,10 @@ class Player:
         self.right_direction = pygame.transform.scale(self.right_direction, (perso_taille, perso_taille))
         self.left_direction = pygame.image.load(left)
         self.left_direction = pygame.transform.scale(self.left_direction, (perso_taille, perso_taille))
-
         self.default_direction = self.right_direction
         self.health = 3
+        self.jump = False
+
         num_j = 0
         for i in carte.structure:
             num_i = 0
@@ -256,25 +269,31 @@ class Player:
 
     def move(self, direction, carte):
         if direction == 'right':
-            if self.x+speed < (cote_fenetre-perso_taille):
-                if self.collision(carte) == False:
-                    self.x += speed
-            else:
-                self.x = cote_fenetre - perso_taille
+            if self.collision(self.x + speed, self.y, carte):
+                self.x += speed
+
             self.default_direction = self.right_direction
 
         elif direction == 'left':
-            if self.x-speed > taille_sprite:
-                if self.collision(carte) == False:
-                    self.x -= speed
-                else:
-                    self.x += 1.5
-            else:
-                self.x = taille_sprite
+            if self.collision(self.x - speed, self.y, carte):
+                self.x -= speed
+
             self.default_direction = self.left_direction
 
+        elif direction == 'gravite':
+            if self.collision(self.x, self.y + 10, carte):
+                self.y += gravite
 
-    def collision(self, carte):
+        elif direction == 'jump':
+            print("",self.jump)
+            if not self.jump:
+                self.jump = True
+                self.jump_y = self.y
+            else:
+                if self.collision(self.x, self.y - jump_speed, carte):
+                    self.y -= jump_speed
+
+    def collision(self, x_perso, y_perso, carte):
         num_j = 0
         for i in carte.structure:
             num_i = 0
@@ -284,11 +303,12 @@ class Player:
                 if sprite == 'B':
                     self.block_x = x
                     self.block_y = y
-                    if (self.x + perso_taille >= self.block_x) and (self.block_x + taille_sprite >= self.x) and (self.y+ perso_taille >= self.block_y)and (self.block_y+ taille_sprite >= self.y):
-                        return True
+                    if (x_perso + perso_taille >= self.block_x) and (self.block_x + taille_sprite >= x_perso) and (
+                            y_perso + perso_taille >= self.block_y) and (self.block_y + taille_sprite >= y_perso):
+                        return False
                 num_i += 1
             num_j += 1
-        return False
+        return True
 
 
 if __name__ == '__main__':
