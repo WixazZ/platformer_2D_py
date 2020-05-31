@@ -152,11 +152,11 @@ image_mur = "mur.png"
 image_depart = "depart.png"
 image_arrivee = "arrivee.png"
 map1 = "first_map.txt"
-perso_droite = "image\player_right.png"
-perso_gauche = "image\player_left.png"
+perso_droite = "image/player_right.png"
+perso_gauche = "image/player_left.png"
 SCREEN_RECT = pygame.Rect((0, 0, cote_fenetre, cote_fenetre))
 speed = 8
-jump_speed = 40
+jump_speed = 30
 perso_taille = taille_sprite * 2
 gravite = 10
 
@@ -193,15 +193,12 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
                     player.move('right', carte)
-                    if event.key == pygame.K_SPACE:
-                        player.move('jump', carte)
 
                 elif event.key == pygame.K_LEFT:
                     player.move('left', carte)
-                    if event.key == pygame.K_SPACE:
-                        player.move('jump', carte)
 
-                elif event.key == pygame.K_SPACE:
+
+                elif event.key == pygame.K_SPACE :
                     player.move('jump', carte)
 
 
@@ -281,17 +278,17 @@ class Player:
             self.default_direction = self.left_direction
 
         elif direction == 'gravite':
-            if self.collision(self.x, self.y + 10, carte):
+            if self.collision(self.x, self.y, carte):
                 self.y += gravite
 
         elif direction == 'jump':
-            print("",self.jump)
             if not self.jump:
                 self.jump = True
                 self.jump_y = self.y
             else:
                 if self.collision(self.x, self.y - jump_speed, carte):
                     self.y -= jump_speed
+
 
     def collision(self, x_perso, y_perso, carte):
         num_j = 0
