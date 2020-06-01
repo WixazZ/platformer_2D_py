@@ -49,8 +49,7 @@ def main():
 
     pygame.display.set_caption(titre_fenetre)
 
-
-
+    menu()
     carte = niveaux(map1)
     carte.lecture_map()
     carte.affichage(screen)
@@ -222,6 +221,30 @@ class Block(pygame.sprite.Sprite):
         self.rect.y = y
         self.image = pygame.image.load(perso_droite)
 
+
+def menu():
+    fond = pygame.image.load("image/fond.jpg").convert()
+    fond = pygame.transform.scale(fond, (cote_fenetre_width, cote_fenetre_height))
+    play_button = pygame.image.load("image/button.png")
+    play_button = pygame.transform.scale(play_button, (400, 150))
+    play_button_rect = play_button.get_rect()
+    play_button_rect.x = math.ceil(screen.get_width() / 3.2)
+    play_button_rect.y = math.ceil(screen.get_height() / 1.4)
+
+
+    continuer = True
+
+    while continuer:
+        screen.blit(fond, (0, 0))
+        screen.blit(play_button, (play_button_rect.x, play_button_rect.y))
+        for event in pygame.event.get():  # Attente des événements
+            if event.type == pygame.QUIT:
+                continuer = 0
+                pygame.quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if play_button_rect.collidepoint(event.pos):
+                    continuer = False
+        pygame.display.flip()
 
 def game_over():
     fond_over = pygame.image.load("image/game_over/Game over.png").convert()
