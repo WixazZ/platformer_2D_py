@@ -31,7 +31,6 @@ player_largeur = 60
 player_longueur = 60
 
 
-
 def exit():
     pygame.quit()
     sys.exit()
@@ -39,8 +38,6 @@ def exit():
 
 def main():
     global player_x, player_y
-
-
 
     pygame.display.set_caption(titre_fenetre)
 
@@ -65,7 +62,7 @@ def main():
                 player_y = y
             if sprite == 'B':
                 k += 1
-                bloc_k = Block(x, y, taille_sprite, taille_sprite, image_mur)
+                bloc_k = Block(x, y, taille_sprite, taille_sprite)
                 All_Block.add(bloc_k)
             num_i += 1
         num_j += 1
@@ -83,17 +80,22 @@ def main():
             if event.type == pygame.QUIT:
                 exit()
 
-        player.update()
-
         collision = pygame.sprite.spritecollide(player, All_Block, False)
         if collision:
             pressed = pygame.key.get_pressed()
-            if player.pos.y < collision[0].rect.top:
+
+            if player.pos.x + perso_taille - 5 <= collision[0].rect.left:
+                player.key_right = False
+
+            if player.pos.x + 5 >= collision[0].rect.x + taille_sprite:
+                print("test")
+                player.key_left = False
+
+            if player.pos.y + player_longueur >= collision[0].rect.top and player.key_right != False and player.key_left != False:
                 player.pos.y = collision[0].rect.top - perso_taille
-                player.vitesse.y = 0
 
+        player.update()
 
-        pygame.display.update()
         pygame.display.flip()
         screen.blit(fond, (0, 0))
         carte.affichage(screen)
@@ -102,6 +104,7 @@ def main():
 
 
 class niveaux:
+
     def __init__(self, maprecup):
         self.map = maprecup
         self.structure = None
@@ -132,6 +135,7 @@ class niveaux:
                 num_i = num_i + 1
             num_j = num_j + 1
 
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, right, left):
         pygame.sprite.Sprite.__init__(self)
@@ -151,19 +155,30 @@ class Player(pygame.sprite.Sprite):
 
         self.vitesse = vec(0, 0)
         self.pos = vec(x, y)
+        self.key_right = True
+        self.key_left = True
 
     def update(self):
         self.vitesse = vec(0, 2)
         pressed = pygame.key.get_pressed()
-        if pressed[pygame.K_RIGHT]: self.vitesse.x = 5
-        if pressed[pygame.K_LEFT]:  self.vitesse.x = -5
+
+        if self.key_right:
+            if pressed[pygame.K_RIGHT]:
+                self.vitesse.x = 5
+
+        if self.key_left:
+            if pressed[pygame.K_LEFT]:
+                self.vitesse.x = -5
+
+        self.key_left = True
+        self.key_right = True
         self.pos += self.vitesse
         self.rect.x = self.pos.x
         self.rect.y = self.pos.y
 
 
 class Block(pygame.sprite.Sprite):
-    def __init__(self, x, y, w, h, image):
+    def __init__(self, x, y, w, h):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface((w, h))
         self.rect = self.image.get_rect()
@@ -171,7 +186,6 @@ class Block(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.image = pygame.image.load(perso_droite)
-
 
 
 if __name__ == '__main__':

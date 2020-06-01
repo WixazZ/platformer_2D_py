@@ -21,8 +21,5 @@ B            BBBBBBBBB                                                          
 B                                                                                       B                                                B
 B                   BB                                                                       B                                           B
 B                                                                                                 BB                                     B
-B                         BBBBBBBBBB                                                                              E                      B
-B                    B                                                                               BBBBBBBBBBBBBBBBBBBBBBB             B
-B                                                                                                                                        B
-B                                                                 E                      E                                               B
 BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+
