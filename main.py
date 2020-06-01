@@ -1,140 +1,8 @@
-'''''
-
-pg.init()
-
-class Player(pg.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.gravity = 1
-        self.velocity = 3
-        self.life = 3
-        self.all_project = pg.sprite.Group()
-        self.image = pg.image.load('player.png')
-        self.rect = self.image.get_rect()
-        self.rect_x = 100
-        self.rect_y = 50
-        self.jump_height = 100
-
-    def deplacement(self):
-        if game.pressed.get(pg.K_a) :
-            self.rect.x -= self.velocity
-
-class Game:
-    def __init__(self):
-        self.player = Player()
-        self.pressed = {}
-
-
-fenetre_x = 900
-fenetre_y = 900
-pos_player_x = 500
-pos_player_y = 500
-
-fenetre = pg.display.set_mode((fenetre_x, fenetre_y))
-
-background = [200, 100, 100]
-#background = pg.image.load()
-
-
-player = Player()
-game =Game()
-fenetre.fill(background)
-#perso = pg.draw.rect(fenetre, green, (50, 50, 50, 50))
-pg.display.flip()
-
-valide = True
-while valide:
-    #fenetre.blit(background, (0, 0))
-    fenetre.blit(game.player.image, player.rect)
-    pg.display.update()
-    for event in pg.event.get():
-        if event.type == pg.QUIT:
-            valide = False
-        game.player.deplacement()
-
-
-pg.quit()
-'''
-
-'''''
-pygame.init()
-
-pygame.display.set_caption('Comet Fall Game')
-
-taille_x = 1064
-taille_y = 710
-
-screen = pygame.display.set_mode((taille_x, taille_y))
-
-game = Game()
-
-player = Player()
-
-background = pygame.image.load('background.jpg')
-
-
-run = True
-
-
-while run:
-
-
-    screen.blit(background, (0, 0))
-    screen.blit(game.player.image, game.player.rect)
-
-    for projectile in game.player.all_projectiles:
-        projectile.move()
-
-    game.player.all_projectiles.draw(screen)
-
-    if (taille_x-320 >= game.player.rect.x >= 0):
-        if game.pressed.get(pygame.K_d):
-            if game.pressed.get(pygame.K_SPACE) :
-                if game.player.one_jump == True:
-                    game.player.jump()
-            game.player.move_right()
-
-        elif game.pressed.get(pygame.K_a):
-            if game.pressed.get(pygame.K_SPACE):
-                if game.player.one_jump == True:
-                    game.player.jump()
-            game.player.move_left()
-
-        elif game.pressed.get(pygame.K_SPACE):
-            if game.player.one_jump == True:
-                game.player.jump()
-
-    elif(game.player.rect.x < 0):
-        game.player.rect.x = 0
-
-    elif(game.player.rect.x > taille_x-320):
-        game.player.rect.x = taille_x - 320
-
-    if game.player.rect.y >= 500:
-        game.player.one_jump = True
-
-    if game.player.rect.y < 500:
-        game.player.gravityy()
-
-    for event in pygame.event.get():
-
-        if event.type == pygame.QUIT:
-            run = False
-            quit()
-
-        elif event.type == pygame.KEYDOWN:
-            game.pressed[event.key] = True
-
-            if event.key == pygame.K_f:
-                game.player.launch_projectile()
-
-        elif event.type == pygame.KEYUP:
-            game.pressed[event.key] = False
-
-    pygame.display.update()
-'''
 import pygame
 import sys
+
+vec = pygame.math.Vector2
+pygame.init()
 
 # Paramètres de la fenêtre
 nombre_sprite_cote = 28
@@ -159,6 +27,9 @@ speed = 8
 jump_speed = 30
 perso_taille = taille_sprite * 2
 gravite = 10
+player_largeur = 60
+player_longueur = 60
+
 
 
 def exit():
@@ -167,7 +38,10 @@ def exit():
 
 
 def main():
-    pygame.init()
+    global player_x, player_y
+
+
+
     pygame.display.set_caption(titre_fenetre)
 
     screen = pygame.display.set_mode(SCREEN_RECT.size)
@@ -177,29 +51,46 @@ def main():
     carte.lecture_map()
     carte.affichage(screen)
 
-    player = Player(perso_droite, perso_gauche, carte)
+    All_Block = pygame.sprite.Group()
 
-    pygame.key.set_repeat(1, 20)
+    num_j = 0
+    for i in carte.structure:
+        num_i = 0
+        k = 0
+        for sprite in i:
+            x = num_i * taille_sprite
+            y = num_j * taille_sprite
+            if sprite == 'S':
+                player_x = x
+                player_y = y
+            if sprite == 'B':
+                k += 1
+                bloc_k = Block(x, y, taille_sprite, taille_sprite, image_mur)
+                All_Block.add(bloc_k)
+            num_i += 1
+        num_j += 1
+
+    player = Player(player_x, player_y, perso_droite, perso_gauche)
+
     fps = pygame.time.Clock()
     play = True
 
     while (play):
 
         fps.tick(30)
-        player.move('gravite', carte)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RIGHT:
-                    player.move('right', carte)
 
-                elif event.key == pygame.K_LEFT:
-                    player.move('left', carte)
+        player.update()
 
-
-                elif event.key == pygame.K_SPACE :
-                    player.move('jump', carte)
+        collision = pygame.sprite.spritecollide(player, All_Block, False)
+        if collision:
+            pressed = pygame.key.get_pressed()
+            if player.pos.y < collision[0].rect.top:
+                player.pos.y = collision[0].rect.top - perso_taille
+                player.vitesse.y = 0
 
 
         pygame.display.update()
@@ -207,7 +98,7 @@ def main():
         screen.blit(fond, (0, 0))
         carte.affichage(screen)
 
-        screen.blit(player.default_direction, (player.x, player.y))
+        screen.blit(player.right_direction, (player.pos.x, player.pos.y))
 
 
 class niveaux:
@@ -241,71 +132,46 @@ class niveaux:
                 num_i = num_i + 1
             num_j = num_j + 1
 
-
-class Player:
-    def __init__(self, right, left, carte):
-        self.right_direction = pygame.image.load(right)
+class Player(pygame.sprite.Sprite):
+    def __init__(self, x, y, right, left):
+        pygame.sprite.Sprite.__init__(self)
+        self.right_direction = pygame.Surface((perso_taille, perso_taille))
+        self.right_direction = pygame.image.load(right).convert_alpha()
         self.right_direction = pygame.transform.scale(self.right_direction, (perso_taille, perso_taille))
-        self.left_direction = pygame.image.load(left)
+
+        self.left_direction = pygame.image.load(left).convert_alpha()
         self.left_direction = pygame.transform.scale(self.left_direction, (perso_taille, perso_taille))
-        self.default_direction = self.right_direction
+
+        self.rect = self.right_direction.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.image = pygame.Surface((player_longueur, player_largeur))
+
         self.health = 3
-        self.jump = False
 
-        num_j = 0
-        for i in carte.structure:
-            num_i = 0
-            for sprite in i:
-                x = num_i * taille_sprite
-                y = num_j * taille_sprite
-                if sprite == 'S':
-                    self.x = x
-                    self.y = y
-                num_i += 1
-            num_j += 1
+        self.vitesse = vec(0, 0)
+        self.pos = vec(x, y)
 
-    def move(self, direction, carte):
-        if direction == 'right':
-            if self.collision(self.x + speed, self.y, carte):
-                self.x += speed
-
-            self.default_direction = self.right_direction
-
-        elif direction == 'left':
-            if self.collision(self.x - speed, self.y, carte):
-                self.x -= speed
-
-            self.default_direction = self.left_direction
-
-        elif direction == 'gravite':
-            if self.collision(self.x, self.y, carte):
-                self.y += gravite
-
-        elif direction == 'jump':
-            if not self.jump:
-                self.jump = True
-                self.jump_y = self.y
-            else:
-                if self.collision(self.x, self.y - jump_speed, carte):
-                    self.y -= jump_speed
+    def update(self):
+        self.vitesse = vec(0, 2)
+        pressed = pygame.key.get_pressed()
+        if pressed[pygame.K_RIGHT]: self.vitesse.x = 5
+        if pressed[pygame.K_LEFT]:  self.vitesse.x = -5
+        self.pos += self.vitesse
+        self.rect.x = self.pos.x
+        self.rect.y = self.pos.y
 
 
-    def collision(self, x_perso, y_perso, carte):
-        num_j = 0
-        for i in carte.structure:
-            num_i = 0
-            for sprite in i:
-                x = num_i * taille_sprite
-                y = num_j * taille_sprite
-                if sprite == 'B':
-                    self.block_x = x
-                    self.block_y = y
-                    if (x_perso + perso_taille >= self.block_x) and (self.block_x + taille_sprite >= x_perso) and (
-                            y_perso + perso_taille >= self.block_y) and (self.block_y + taille_sprite >= y_perso):
-                        return False
-                num_i += 1
-            num_j += 1
-        return True
+class Block(pygame.sprite.Sprite):
+    def __init__(self, x, y, w, h, image):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((w, h))
+        self.rect = self.image.get_rect()
+        self.image = pygame.transform.scale(self.image, (w, h))
+        self.rect.x = x
+        self.rect.y = y
+        self.image = pygame.image.load(perso_droite)
+
 
 
 if __name__ == '__main__':
