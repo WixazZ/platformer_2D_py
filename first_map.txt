@@ -1,24 +1,24 @@
 
                                 F
-                        E
-                     BBBBB
-
-    E
-BBBBBBBB
-
-            V              BBBBBB
-
-
-        BBBBBBB
-
-
-
-                            E
+                       E        V
+            BBB     BBBBBB   B
+                                
+    E                           B                         
+BBBBBBBB                           BB 
+                             E    B
+        BB   V          B   BBBBBB
+                   BBB
+    B            
+        BBBBBBB	 V
+                   BBBV
+B                         BB
+                                
+  BBB                      E
            E             BBBBB
-        BBBBB
-
-
-S
+        BBBBB           V
+                     B 
+		    
+S            
 BBBBBBBBBBBBBBB       BBBBBBBBBBBB
 
 
